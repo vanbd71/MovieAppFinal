@@ -7,9 +7,11 @@ import {
   Image,
   StyleSheet,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-export default function Cast({ cast }) {
-  const navigation = useNavigation();
+import { image185 } from "../api/moviedb";
+// import { useNavigation } from "@react-navigation/native";
+export default function Cast({ cast, navigation }) {
+  // console.log("123cast" + cast);
+  // const navigation = useNavigation();
   let personName = "Keanu Reevs";
   let characterName = "John Wick";
   return (
@@ -30,22 +32,18 @@ export default function Cast({ cast }) {
               <View style={styles.imageContainer}>
                 <Image
                   style={styles.image}
-                  source={require("../assets/images/castImage1.png")}
+                  source={{ uri: image185(person?.profile_path) }}
                 />
               </View>
               <Text style={styles.characterName}>
-                {person.characterName
-                  ? person.characterName.length > 10
-                    ? `${person.characterName.slice(0, 10)}...`
-                    : person.characterName
-                  : "Unknown"}
+                {person?.character?.length > 10
+                  ? person.character.slice(0, 10) + "..."
+                  : person?.character}
               </Text>
               <Text style={styles.personName}>
-                {person.personName
-                  ? person.personName.length > 10
-                    ? `${person.personName.slice(0, 10)}...`
-                    : person.personName
-                  : "Unknown"}
+                {person?.original_name?.length > 10
+                  ? person.original_name.slice(0, 10) + "..."
+                  : person?.original_name}
               </Text>
             </TouchableOpacity>
           ))}

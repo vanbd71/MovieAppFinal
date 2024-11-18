@@ -14,7 +14,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="HomeScreen"
+        initialRouteName="Onboarding"
         screenOptions={{ navigationBarColor: "black" }}
       >
         <Stack.Screen

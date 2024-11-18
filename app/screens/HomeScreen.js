@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,15 +13,42 @@ import { Ionicons } from "@expo/vector-icons";
 import TrendingMovies from "../../components/trendingMovies";
 import MovieList from "../../components/movieList";
 import { useNavigation } from "@react-navigation/native";
+import { fetchTrendingMovies } from "../../api/moviedb";
+import { fetchUpcomingMovies } from "../../api/moviedb";
+import { fetchTopRatedMovies } from "../../api/moviedb";
 
 const android = Platform.OS === "android";
 
 export default function HomeScreen() {
-  const [trending, setTrending] = useState([1, 2, 3]);
-  const [upcoming, setUpcoming] = useState([1, 2, 3]);
-  const [topRated, setTopRated] = useState([1, 2, 3]);
+  const [trending, setTrending] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
+  const [topRated, setTopRated] = useState([]);
   const navigation = useNavigation();
 
+  useEffect(() => {
+    getTrendingMovies();
+    getUpComingMovies();
+    getTopRatedMovies();
+  }, []);
+
+  const getTrendingMovies = async () => {
+    const data = await fetchTrendingMovies();
+    if (data && data.results) {
+      setTrending(data.results);
+    }
+  };
+  const getUpComingMovies = async () => {
+    const data = await fetchUpcomingMovies();
+    if (data && data.results) {
+      setUpcoming(data.results);
+    }
+  };
+  const getTopRatedMovies = async () => {
+    const data = await fetchTopRatedMovies();
+    if (data && data.results) {
+      setTopRated(data.results);
+    }
+  };
   return (
     <View style={styles.container}>
       {/* SafeAreaView chỉ bao quanh phần header */}
@@ -46,7 +73,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 10 }}
       >
         {/* Hiển thị các bộ phim */}
-        <TrendingMovies data={trending} />
+        {trending.length > 0 && <TrendingMovies data={trending} />}
         <MovieList title="Upcoming" data={upcoming} />
         <MovieList title="Top Rated" data={topRated} />
       </ScrollView>

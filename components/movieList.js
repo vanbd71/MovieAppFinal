@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,17 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { image185 } from "../api/moviedb";
 
 const { width, height } = Dimensions.get("window");
 
 export default function MovieList({ title, data }) {
+  // console.log(data);
   const navigation = useNavigation();
-  const movieName = "Ant-Man and the Wasp: Quantumania";
+
+  // useEffect(() => {
+  //   console.log("data", data[0]);
+  // }, [data]);
 
   return (
     <View style={{ paddingHorizontal: 16, marginTop: 20 }}>
@@ -47,14 +52,14 @@ export default function MovieList({ title, data }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 15 }}
       >
-        {data.map((item, index) => (
+        {data?.map((item, index) => (
           <TouchableWithoutFeedback
             key={index}
             onPress={() => navigation.navigate("Movie", item)}
           >
             <View style={{ marginRight: 16 }}>
               <Image
-                source={require("../assets/images/moviePoster2.png")}
+                source={{ uri: image185(item.poster_path) }}
                 style={{
                   width: width * 0.33,
                   height: height * 0.22,
@@ -69,9 +74,9 @@ export default function MovieList({ title, data }) {
                   fontSize: 14,
                 }}
               >
-                {movieName.length > 14
-                  ? movieName.slice(0, 14) + "..."
-                  : movieName}
+                {item.title.length > 14
+                  ? item.title.slice(0, 14) + "..."
+                  : item.title}
               </Text>
             </View>
           </TouchableWithoutFeedback>

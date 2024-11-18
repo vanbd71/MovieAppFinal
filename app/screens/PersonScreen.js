@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,16 +9,42 @@ import {
   SafeAreaView,
   StyleSheet,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import MovieList from "../../components/movieList";
+import {
+  fetchPersonDetails,
+  fetchPersonMovies,
+  image342,
+} from "../../api/moviedb";
 
 const { width, height } = Dimensions.get("window");
 
 export default function PersonScreen() {
+  const { params: item } = useRoute();
   const navigation = useNavigation();
   const [isFavourite, toggleFavourite] = useState(false);
-  const [personMovies, setPersonMovies] = useState([1, 2, 3]);
+  const [personMovies, setPersonMovies] = useState([]);
+  const [person, setPerson] = useState({});
+  useEffect(() => {
+    // console.log("person: ", item);
+    getPersonDetails(item.id);
+    getPersonMovies(item.id);
+  }, [item]);
+
+  const getPersonDetails = async (id) => {
+    const data = await fetchPersonDetails(id);
+    // console.log("got person details: ", data);
+    if (data) {
+      setPerson(data);
+    }
+  };
+  const getPersonMovies = async (id) => {
+    const data = await fetchPersonMovies(id);
+    if (data && data.cast) {
+      setPersonMovies(data.cast);
+    }
+  };
 
   return (
     <ScrollView
@@ -46,7 +72,8 @@ export default function PersonScreen() {
       <View style={styles.personDetailsContainer}>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../../assets/images/castImage2.png")}
+            // source={require("../../assets/images/castImage2.png")}
+            source={{ uri: image342(person?.profile_path) }}
             style={{
               height: height * 0.43,
               width: width * 0.74,
@@ -54,8 +81,8 @@ export default function PersonScreen() {
           />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.personName}>Keanu Reeves</Text>
-          <Text style={styles.personLocation}>London, United Kingdom</Text>
+          <Text style={styles.personName}>{person?.name}</Text>
+          <Text style={styles.personLocation}>{person?.place_of_birth}</Text>
         </View>
       </View>
 
@@ -63,33 +90,32 @@ export default function PersonScreen() {
         <View style={styles.row}>
           <View style={styles.rowItem}>
             <Text style={styles.label}>Gender</Text>
-            <Text style={styles.value}>Male</Text>
+            <Text style={styles.value}>
+              {person?.gender === 1 ? "Female" : "Male"}
+            </Text>
           </View>
           <View style={styles.rowItem}>
             <Text style={styles.label}>Birthday</Text>
-            <Text style={styles.value}>1964-09-02</Text>
+            <Text style={styles.value}>{person?.birthday}</Text>
           </View>
         </View>
         <View style={styles.row}>
           <View style={styles.rowItem}>
             <Text style={styles.label}>Known for</Text>
-            <Text style={styles.value}>Acting</Text>
+            <Text style={styles.value}>{person?.known_for_department}</Text>
           </View>
           <View style={styles.rowItem}>
             <Text style={styles.label}>Popularity</Text>
-            <Text style={styles.value}>64.23</Text>
+            <Text style={styles.value}>{person?.popularity?.toFixed(2)} %</Text>
           </View>
         </View>
         <View style={styles.biographyContainer}>
           <Text style={styles.bioTitle}>Biography</Text>
-          <Text style={styles.bioText}>
-            Keanu Charles Reeves is a Canadian actor. Reeves is known for his
-            roles in Bill...
-          </Text>
+          <Text style={styles.bioText}>{person?.biography || "N/A"}</Text>
         </View>
 
         {/* movie */}
-        <MovieList title="Movies" data={personMovies} />
+        <MovieList title={"Movies"} hideSeeAll={true} data={personMovies} />
       </View>
     </ScrollView>
   );

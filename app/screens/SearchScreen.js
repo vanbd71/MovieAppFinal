@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -9,16 +9,35 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from "react-native";
+import { debounce } from "lodash";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { searchMovies, image185 } from "../../api/moviedb";
 const { width, height } = Dimensions.get("window");
 
 export default function SearchScreen() {
   const navigation = useNavigation();
-  const [results, setResults] = useState([]); // Mảng giả lập kết quả tìm kiếm
+  const [results, setResults] = useState([]);
   let movieName = "Ant-Man and the Wasp: Quantumania";
+  const handleSearch = (value) => {
+    if (value && value.length > 2) {
+      searchMovies({
+        query: value,
+        include_adult: "false",
+        language: "en-US",
+        page: "1",
+      }).then((data) => {
+        if (data && data.results) {
+          setResults(data.results);
+        }
+      });
+    } else {
+      setResults([]);
+    }
+  };
+
+  const handleTextDebounce = useCallback(debounce(handleSearch, 400), []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#1A202C" }}>
@@ -38,6 +57,7 @@ export default function SearchScreen() {
         }}
       >
         <TextInput
+          onChangeText={handleTextDebounce}
           placeholder="Search Movie"
           placeholderTextColor="lightgray"
           style={{
@@ -88,7 +108,8 @@ export default function SearchScreen() {
                 >
                   <View style={{ marginBottom: 20, width: width * 0.44 }}>
                     <Image
-                      source={require("../../assets/images/moviePoster1.png")} // Thay thế bằng ảnh động API
+                      // source={require("../../assets/images/moviePoster1.png")} // Thay thế bằng ảnh động API
+                      source={{ uri: image185(item?.poster_path) }}
                       style={{
                         width: "100%",
                         height: height * 0.3,
@@ -103,9 +124,9 @@ export default function SearchScreen() {
                         textAlign: "center",
                       }}
                     >
-                      {movieName.length > 22
-                        ? movieName.slice(0, 22) + "..."
-                        : movieName}
+                      {item?.title.length > 22
+                        ? item?.title.slice(0, 22) + "..."
+                        : item?.title}
                     </Text>
                   </View>
                 </TouchableWithoutFeedback>

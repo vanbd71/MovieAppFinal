@@ -15,6 +15,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Cast from "../../components/cast";
 import MovieList from "../../components/movieList";
+import { fetchMovieDetails, image500 } from "../../api/moviedb";
+import { fetchMovieCredits, fetchSimilarMovies } from "../../api/moviedb";
 
 const { width, height } = Dimensions.get("window");
 const ios = Platform.OS === "ios";
@@ -23,13 +25,37 @@ export default function MovieScreen() {
   const { params: item } = useRoute();
   const [isFavourite, toggleFavourite] = useState(false);
   const navigation = useNavigation();
-  const [cast, setCast] = useState([1, 2, 3, 4, 5]);
-  const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5]);
-  let movieName = "Ant-Man and the Wasp: Quantumania";
+  const [cast, setCast] = useState([]);
+  const [similarMovies, setSimilarMovies] = useState([]);
+  const [movie, setMovie] = useState({});
+  // let movieName = "Ant-Man and the Wasp: Quantumania";
 
   useEffect(() => {
     // Call the movie details API
+    // console.log("item" + item.id);
+    getMovieDetails(item.id);
+    getMovieCredits(item.id);
+    getSimilarMovies(item.id);
   }, [item]);
+
+  const getMovieDetails = async (id) => {
+    const data = await fetchMovieDetails(id);
+    if (data) {
+      setMovie(data);
+    }
+  };
+  const getMovieCredits = async (id) => {
+    const data = await fetchMovieCredits(id);
+    if (data && data.cast) {
+      setCast(data.cast);
+    }
+  };
+  const getSimilarMovies = async (id) => {
+    const data = await fetchSimilarMovies(id);
+    if (data && data.results) {
+      setSimilarMovies(data.results);
+    }
+  };
 
   return (
     <ScrollView
@@ -54,7 +80,8 @@ export default function MovieScreen() {
 
         <View>
           <Image
-            source={require("../../assets/images/moviePoster2.png")}
+            source={{ uri: image500(movie?.poster_path) }}
+            // source={require("../../assets/images/moviePoster2.png")}
             style={styles.posterImage}
           />
           <LinearGradient
@@ -69,37 +96,39 @@ export default function MovieScreen() {
       {/* Movie details */}
       <View style={styles.detailsContainer}>
         {/* Title */}
-        <Text style={styles.movieTitle}>{movieName}</Text>
+        <Text style={styles.movieTitle}>{movie?.title}</Text>
 
         {/* Status, release, runtime */}
-        <Text style={styles.movieInfo}>Released • 2020 • 170 min</Text>
+        {movie?.id ? (
+          <Text style={styles.movieInfo}>
+            {movie?.status} • {movie?.release_date?.split("-")[0]} •{" "}
+            {movie?.runtime} min
+          </Text>
+        ) : null}
 
         {/* Genres */}
         <View style={styles.genreContainer}>
-          <Text style={styles.genreText}>Action •</Text>
-          <Text style={styles.genreText}>Thrill •</Text>
-          <Text style={styles.genreText}>Comedy</Text>
+          {movie?.genres?.map((genre, index) => {
+            let showDot = index + 1 != movie.genres.length;
+            return (
+              <Text key={index} style={styles.genreText}>
+                {genre?.name} {showDot ? "•" : null}
+              </Text>
+            );
+          })}
         </View>
         <View style={styles.descriptionContainer}>
-          <Text style={styles.descriptionText}>
-            Working primarily in the arena of nonfiction, Marker rejected
-            conventional narrative techniques, instead staking out a deeply
-            political terrain defined by the use of still images, atmospheric
-            soundtracks, and literate commentary. In Description d’un Combat,
-            Marker’s idiosyncratic style, combining location footage with
-            archival material, builds a complex and personal portrayal. Israel’s
-            demography is explored, from the kibbutzim to the Arab minorities,
-            the orthodox Jews, and the tourists. The “battle” of the title does
-            not refer to the tank-and-artillery variety, but to the inner
-            struggle of Israeli citizens to adapt to a new view of themselves,
-            in a new country.
-          </Text>
+          <Text style={styles.descriptionText}>{movie?.overview}</Text>
         </View>
       </View>
 
       {/* Cast section */}
-      <Cast cast={cast} />
-      <MovieList title="Similar Movies" data={similarMovies} />
+      <Cast navigation={navigation} cast={cast} />
+      <MovieList
+        title="Similar Movies"
+        hideSeeAll={true}
+        data={similarMovies}
+      />
     </ScrollView>
   );
 }

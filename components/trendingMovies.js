@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,37 +6,58 @@ import {
   Dimensions,
   Image,
   StyleSheet,
+  FlatList,
 } from "react-native";
-import Swiper from "react-native-swiper"; // Thêm Swiper
 import { useNavigation } from "@react-navigation/native";
+import { image500 } from "../api/moviedb";
 
 const { width, height } = Dimensions.get("window");
 
 export default function TrendingMovies({ data }) {
   const navigation = useNavigation();
+  const flatListRef = useRef(null); // Tham chiếu tới FlatList
+  const [currentIndex, setCurrentIndex] = useState(0); // Chỉ số cuộn hiện tại
 
   const handleClick = (item) => {
     navigation.navigate("Movie", item);
   };
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Tính chỉ số tiếp theo
+      const nextIndex = (currentIndex + 1) % data.length;
+      setCurrentIndex(nextIndex);
+
+      // Cuộn tới chỉ số tiếp theo
+      flatListRef.current?.scrollToIndex({
+        index: nextIndex,
+        animated: true,
+      });
+    }, 3000); // Cuộn mỗi 3 giây
+
+    return () => clearInterval(interval); // Xóa interval khi component unmount
+  }, [currentIndex, data.length]);
+
+  const renderItem = ({ item }) => (
+    <MovieCard item={item} handleClick={() => handleClick(item)} />
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trending</Text>
-      <Swiper
-        showsPagination={true} // Hiển thị dot pagination
-        loop={true} // Quay vòng
-        autoplay={true} // Tự động chuyển slide
-        autoplayTimeout={3} // Thời gian chuyển tiếp giữa các slide (3 giây)
-        style={styles.swiper}
-      >
-        {data.map((item, index) => (
-          <MovieCard
-            key={index}
-            item={item}
-            handleClick={() => handleClick(item)}
-          />
-        ))}
-      </Swiper>
+      <View style={{ marginHorizontal: 28, paddingHorizontal: 12 }}>
+        <FlatList
+          ref={flatListRef} // Gắn tham chiếu
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={width * 0.8 + 16} // Snap vào từng ảnh
+          decelerationRate="fast" // Cuộn mượt
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+        />
+      </View>
     </View>
   );
 }
@@ -45,8 +66,7 @@ const MovieCard = ({ item, handleClick }) => {
   return (
     <TouchableWithoutFeedback onPress={handleClick}>
       <Image
-        // source={item.image} // Sử dụng image từ data
-        source={require("../assets/images/moviePoster1.png")}
+        source={{ uri: image500(item.poster_path) }}
         style={styles.movieImage}
       />
     </TouchableWithoutFeedback>
@@ -57,7 +77,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginBottom: 20,
-    marginTop: 0,
   },
   title: {
     color: "white",
@@ -67,14 +86,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   movieImage: {
-    width: width * 0.8, // Điều chỉnh kích thước ảnh
-    height: height * 0.4, // Điều chỉnh chiều cao ảnh
+    width: width * 0.8,
+    height: height * 0.4,
     borderRadius: 12,
-    alignSelf: "center", // Canh giữa ảnh
-  },
-  swiper: {
-    width: width * 0.9, // Giới hạn chiều rộng của swiper
-    height: height * 0.4, // Cố định chiều cao của swiper
-    borderRadius: 12, // Làm tròn góc của swiper
+    marginRight: 16,
   },
 });
