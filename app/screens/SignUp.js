@@ -46,7 +46,7 @@ const SignUp = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.logoText}>
-        SHOP<Text style={{ color: "#FFD700" }}> DUCVAN</Text>
+        NET<Text style={{ color: "#FFD700" }}>FLEX</Text>
       </Text>
       <TextInput
         style={styles.input}
