@@ -1,6 +1,6 @@
 About The Project
 
-<iframe width="560" height="315" src="https://youtube.com/shorts/SkFKjgQkDyU?feature=share" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Video Title](https://www.youtube.com/shorts/SkFKjgQkDyU/0.jpg)](https://youtube.com/shorts/SkFKjgQkDyU?feature=share)
 
 Cross-platform React Native mobile app that displays movie information, actor information, search all movies, movie information, and movies the actor has starred in.
 
