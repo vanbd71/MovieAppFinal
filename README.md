@@ -25,3 +25,17 @@ Person Details API
 Movie Search API
 
 Api: The MovieDB
+
+Installation
+
+Clone the repo
+
+        https://github.com/vanbd71/MovieAppFinal.git
+
+Install NPM packages
+
+        npm install
+
+Run command
+
+        npm start
