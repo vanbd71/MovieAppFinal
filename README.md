@@ -1,6 +1,9 @@
 About The Project
 
-<video controls src="movieApp.mp4" title="Title"></video>
+<video width="320" height="240" controls>
+  <source src="movieApp.mp4" type="video/mp4">
+  Trình duyệt của bạn không hỗ trợ video.
+</video>
 
 Cross-platform React Native mobile app that displays movie information, actor information, search all movies, movie information, and movies the actor has starred in.
 
