@@ -6,6 +6,8 @@ Cross-platform React Native mobile app that displays movie information, actor in
 
 Feature:
 
+Sign In, Sign Up
+
 Movie Screen UI
 
 Person Screen UI
